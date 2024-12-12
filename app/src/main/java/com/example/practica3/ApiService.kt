@@ -25,6 +25,12 @@ interface ApiService {
         @Query("productId") productId: Long,
     ): Call<Void>
 
+    @POST("/api/cart/payment")
+    fun processPayment(): Call<Void>
+
+    @GET("/api/cart")
+    fun getFullCart(): Call<List<Product>>
+
     // Editar un product por su ID
     @POST("/products/edit/{id}")
     fun editProduct(

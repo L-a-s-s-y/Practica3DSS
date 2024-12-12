@@ -35,5 +35,6 @@ class CartActivity : AppCompatActivity() {
             CartManager.removeProduct(product)
             loadCartItems() // Recargar la lista después de eliminar
         }
+        //recyclerViewCart.adapter = CartAdapter(cartItems)
     }
 }

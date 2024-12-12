@@ -7,11 +7,21 @@
 
     <!-- RecyclerView para los productos del carrito -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewCart"
+        android:id="@+id/recyclerViewCheckout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/buttonCheckout"
         android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/checkoutTotalPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total: $0.00"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp" />
 
     <!-- Botón para proceder al pago -->
     <Button
