@@ -1,6 +1,7 @@
 package com.example.practica3
 import retrofit2.Call
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -25,6 +26,11 @@ interface ApiService {
         @Query("productId") productId: Long,
     ): Call<Void>
 
+    @POST("/api/cart/delete")
+    fun remove(
+        @Query("productId") productId: Long,
+    ): Call<Void>
+
     @POST("/api/cart/payment")
     fun processPayment(): Call<Void>
 
@@ -44,4 +50,7 @@ interface ApiService {
     fun deleteProduct(
         @Path("id") id: Long
     ): Call<Void>
+
+    @POST("/api/auth/login")
+    fun login(@Body loginRequest: LoginRequest): Call<LoginResponse>
 }

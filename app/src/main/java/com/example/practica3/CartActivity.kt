@@ -9,6 +9,7 @@ import android.widget.Button
 class CartActivity : AppCompatActivity() {
     private lateinit var recyclerViewCart: RecyclerView
     private lateinit var buttonCheckout: Button
+    //private lateinit var buttonRemove: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,6 +17,7 @@ class CartActivity : AppCompatActivity() {
 
         recyclerViewCart = findViewById(R.id.recyclerViewCart)
         buttonCheckout = findViewById(R.id.buttonCheckout)
+        //buttonRemove = findViewById(R.id.buttonRemove)
 
         // Configurar RecyclerView
         recyclerViewCart.layoutManager = LinearLayoutManager(this)
@@ -31,8 +33,8 @@ class CartActivity : AppCompatActivity() {
 
     private fun loadCartItems() {
         val cartItems = CartManager.getCartItems()
-        recyclerViewCart.adapter = CartAdapter(cartItems) { product ->
-            CartManager.removeProduct(product)
+        recyclerViewCart.adapter = CartAdapter(cartItems) {
+            productId -> CartManager.removeProduct(productId)
             loadCartItems() // Recargar la lista después de eliminar
         }
         //recyclerViewCart.adapter = CartAdapter(cartItems)

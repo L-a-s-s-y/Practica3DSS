@@ -36,7 +36,10 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+        buildConfig = true
     }
+
 }
 
 dependencies {
@@ -72,4 +75,11 @@ dependencies {
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("com.google.android.material:material:1.9.0")
+
+    //Para OpenMaps
+    implementation ("org.osmdroid:osmdroid-android:6.1.20")
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.20")
+    implementation ("androidx.preference:preference:1.2.1")
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.10.0")
 }
