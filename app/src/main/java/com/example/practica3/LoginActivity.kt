@@ -55,6 +55,8 @@ class LoginActivity : AppCompatActivity() {
                         // Guardar el token en SharedPreferences
                         val sharedPref = getSharedPreferences("app_prefs", MODE_PRIVATE)
                         sharedPref.edit().putString("auth_token", token).apply()
+                        Log.d("LOGIN_ACT:TOKEN", "Body: ${token}")
+
 
 
                         // Navegar a la MainActivity

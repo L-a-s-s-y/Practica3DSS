@@ -53,6 +53,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonCheckout: Button
     private lateinit var buttonPayment: Button
     private lateinit var buttonMaps: Button
+    private lateinit var buttonLogout: Button
+
 
 
     private var isViewingCart = false
@@ -73,13 +75,14 @@ class MainActivity : ComponentActivity() {
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
         Configuration.getInstance().userAgentValue = "com.example.practica3"
         super.onCreate(savedInstanceState)
-
+        ApiClient.initialize(applicationContext)
         if (token == null) {
             // Redirigir a la pantalla de login si no hay token
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
         } else {
+
             //setContentView(R.layout.activity_main)
             // Resto de la lógica
 
@@ -99,6 +102,8 @@ class MainActivity : ComponentActivity() {
             buttonCheckout = findViewById(R.id.buttonCheckout)
             buttonPayment = findViewById(R.id.buttonPayment)
             buttonMaps = findViewById(R.id.buttonMaps)
+            buttonLogout = findViewById(R.id.buttonLogout)
+
 
 
             recyclerViewCart.layoutManager = LinearLayoutManager(this)
@@ -132,9 +137,15 @@ class MainActivity : ComponentActivity() {
             buttonMaps.setOnClickListener{
                 goToMap()
             }
+
+            buttonLogout.setOnClickListener{
+                clearLocalData()
+            }
         }
 
     }
+
+
 
     private fun toggleView() {
         isViewingCart = !isViewingCart
@@ -207,14 +218,14 @@ class MainActivity : ComponentActivity() {
                         recyclerView.adapter = productAdapter
                     }
                 } else {
-                    Log.e("API_ERROR", "Error code: ${response.code()}")
+                    Log.e("FETCH_PRODUCTS", "Error code: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                Log.e("DEPURACION", "llegó a onFailure")
-
-                Log.e("API_ERROR", "Failure: ${t.message}")
+                Log.e("FETCH_PRODUCTS", "llegó a onFailure")
+                Log.e("FETCH_PRODUCTS", "Failure: ${t.message}")
+                Log.e("FETCH_PRODUCTS", "Failure: ${t.message}")
             }
         })
     }
@@ -358,6 +369,7 @@ class MainActivity : ComponentActivity() {
         buttonPayment.visibility = View.GONE
         buttonCheckout.visibility = View.GONE
         buttonCarrito.visibility = View.VISIBLE
+        buttonCarrito.text = "cart"
         buttonAddProducts.visibility = View.VISIBLE
     }
 
@@ -365,5 +377,21 @@ class MainActivity : ComponentActivity() {
         Toast
             .makeText(this, "Error while processing the payment. Please try again.", Toast.LENGTH_LONG)
             .show()
+    }
+
+    private fun clearLocalData() {
+        // Eliminar cookies
+        val cookieManager = android.webkit.CookieManager.getInstance()
+        cookieManager.removeAllCookies(null)
+        cookieManager.flush()
+
+        // Eliminar auth_token de SharedPreferences
+        val sharedPref = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        sharedPref.edit().remove("auth_token").commit()
+
+        Log.d("CLEAR_LOCAL_DATA","Datos locales eliminados: auth_token y cookies")
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

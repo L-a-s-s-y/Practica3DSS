@@ -9,8 +9,10 @@ import retrofit2.http.Query
 
 interface ApiService {
     // Get all products
-    @GET("/api/products")
+    //@GET("/api/products")
     //fun getAllProducts(): Call<List<Product>>
+
+    @GET("/api/products")
     fun getAllProducts(): Call<List<Product>>
 
 
