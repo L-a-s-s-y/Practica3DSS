@@ -42,6 +42,11 @@
         <activity
             android:name=".AddProductActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- Declarar LoginActivity -->
+        <activity
+            android:name=".MapActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 

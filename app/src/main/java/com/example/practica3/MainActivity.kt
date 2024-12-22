@@ -37,12 +37,12 @@ class MainActivity : ComponentActivity() {
 
 
     private lateinit var priceTotalTextView: TextView
-    private lateinit var checkoutTotalPrice: TextView
+    //private lateinit var checkoutTotalPrice: TextView
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerViewCart: RecyclerView
     private lateinit var recyclerViewCheckout: RecyclerView
-    private lateinit var viewMaps: MapView
+    //private lateinit var viewMaps: MapView
 
 
     private lateinit var buttonCarrito: Button
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
             recyclerView = findViewById(R.id.recyclerViewProducts)
             recyclerViewCart = findViewById(R.id.recyclerViewCart)
             recyclerViewCheckout = findViewById(R.id.recyclerViewCheckout)
-            viewMaps = findViewById(R.id.viewMap)
+            //viewMaps = findViewById(R.id.viewMap)
 
             buttonCarrito = findViewById(R.id.buttonGoToCart)
             buttonAddProducts = findViewById(R.id.buttonAddProduct)
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
 
             fetchProducts()
 
-            viewMaps.visibility = View.GONE
+            //viewMaps.visibility = View.GONE
             recyclerView.visibility = View.VISIBLE
             recyclerViewCart.visibility = View.GONE
             recyclerViewCheckout.visibility = View.GONE
@@ -242,39 +242,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun goToMap() {
-        isMaps = !isMaps
-        if (isMaps) {
-            buttonCheckout.visibility = View.GONE
-            buttonAddProducts.visibility = View.GONE
-            buttonMaps.visibility = View.VISIBLE
-            buttonCarrito.visibility = View.GONE
-            buttonMaps.text = "Products"
-
-            recyclerView.visibility = View.GONE
-            recyclerViewCart.visibility = View.GONE
-            recyclerViewCheckout.visibility = View.GONE
-            viewMaps.visibility = View.VISIBLE
-
-            priceTotalTextView.visibility = View.GONE
-        } else {
-
-            recyclerView.visibility = View.VISIBLE
-            recyclerViewCart.visibility = View.GONE
-            recyclerViewCheckout.visibility = View.GONE
-            viewMaps.visibility = View.GONE
-            buttonCarrito.visibility = View.VISIBLE
-
-            buttonMaps.text = "Map"
-            buttonCarrito.visibility = View.VISIBLE
-            if (isAdmin)
-                buttonAddProducts.visibility = View.VISIBLE
-            else
-                buttonAddProducts.visibility = View.GONE
-            buttonCheckout.visibility = View.GONE
-
-            priceTotalTextView.visibility = View.GONE
-
-        }
+        val intent = Intent(this, MapActivity::class.java)
+        startActivity(intent)
     }
 
     private fun fetchProducts() {
