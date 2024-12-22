@@ -4,31 +4,28 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import org.osmdroid.config.Configuration
 
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.practica3.ui.theme.Practica3Theme
 import android.os.Bundle
 import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Intent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import org.osmdroid.views.MapView
 import androidx.preference.PreferenceManager
+import com.example.practica3.adapters.CartAdapter
+import com.example.practica3.adapters.CheckoutAdapter
+import com.example.practica3.adapters.ProductAdapter
+import com.example.practica3.api.ApiClient
+import com.example.practica3.api.ApiService
+import com.example.practica3.managers.CartManager
+import com.example.practica3.models.ProductModel
 
 
 
@@ -54,16 +51,15 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonPayment: Button
     private lateinit var buttonMaps: Button
     private lateinit var buttonLogout: Button
+    private lateinit var buttonProducts: Button
 
-
-
-    private var isViewingCart = false
     private var isMaps = false
     private var isCheckout = false
+    private var isAdmin = false
 
     private val apiService = ApiClient.retrofit.create(ApiService::class.java)
 
-
+    private lateinit var addProductLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -86,6 +82,10 @@ class MainActivity : ComponentActivity() {
             //setContentView(R.layout.activity_main)
             // Resto de la lógica
 
+            isAdmin = token.contains("admin")
+
+            Log.d("IS_ADMIN", ":${isAdmin}")
+
             setContentView(R.layout.activity_main)
 
             // configurar RecyclerView
@@ -103,7 +103,18 @@ class MainActivity : ComponentActivity() {
             buttonPayment = findViewById(R.id.buttonPayment)
             buttonMaps = findViewById(R.id.buttonMaps)
             buttonLogout = findViewById(R.id.buttonLogout)
+            buttonProducts = findViewById(R.id.buttonGoToProducts)
 
+
+
+            addProductLauncher = registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    // Si el producto se añadió con éxito, actualiza los productos
+                    fetchProducts()
+                }
+            }
 
 
             recyclerViewCart.layoutManager = LinearLayoutManager(this)
@@ -119,11 +130,21 @@ class MainActivity : ComponentActivity() {
 
             priceTotalTextView.visibility = View.GONE
             buttonCheckout.visibility = View.GONE
-            buttonAddProducts.visibility = View.VISIBLE
             buttonMaps.visibility = View.VISIBLE
+            buttonPayment.visibility = View.GONE
+            buttonProducts.visibility = View.GONE
+
+            if (isAdmin)
+                buttonAddProducts.visibility = View.VISIBLE
+            else
+                buttonAddProducts.visibility = View.GONE
 
             buttonCarrito.setOnClickListener {
-                toggleView()
+                goToCart()
+            }
+
+            buttonProducts.setOnClickListener {
+                goToProducts()
             }
 
             buttonCheckout.setOnClickListener {
@@ -141,31 +162,83 @@ class MainActivity : ComponentActivity() {
             buttonLogout.setOnClickListener{
                 clearLocalData()
             }
+
+            buttonAddProducts.setOnClickListener{
+                addProductAdmin()
+            }
         }
 
     }
 
-
-
-    private fun toggleView() {
-        isViewingCart = !isViewingCart
-
-        if (isViewingCart) {
-            buttonCheckout.visibility = View.VISIBLE
-            buttonAddProducts.visibility = View.GONE
-            recyclerView.visibility = View.GONE
-            recyclerViewCart.visibility = View.VISIBLE
-            priceTotalTextView.visibility = View.VISIBLE
-            buttonCarrito.text = "Products"
-            loadCartItems()
-        } else {
-            priceTotalTextView.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
-            recyclerViewCart.visibility = View.GONE
-            buttonCarrito.text = "View Cart"
+    private fun goToProducts(){
+        priceTotalTextView.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
+        recyclerViewCart.visibility = View.GONE
+        buttonPayment.visibility = View.GONE
+        if (isAdmin)
             buttonAddProducts.visibility = View.VISIBLE
-            buttonCheckout.visibility = View.GONE
-        }
+        else
+            buttonAddProducts.visibility = View.GONE
+        buttonCheckout.visibility = View.GONE
+        buttonCarrito.visibility = View.VISIBLE
+        buttonProducts.visibility = View.GONE
+
+        isCheckout = true
+
+        recyclerViewCart.visibility = View.GONE
+        recyclerViewCheckout.visibility = View.GONE
+
+        buttonCheckout.visibility = View.GONE
+        buttonCarrito.visibility = View.VISIBLE
+        buttonProducts.visibility = View.GONE
+
+        buttonPayment.visibility = View.GONE
+
+    }
+
+    private fun resetToProductsView() {
+        // Reiniciar los estados de las vistas
+        isCheckout = false
+        priceTotalTextView.visibility = View.GONE
+
+        recyclerView.visibility = View.VISIBLE
+        recyclerViewCart.visibility = View.GONE
+        recyclerViewCheckout.visibility = View.GONE
+
+        buttonPayment.visibility = View.GONE
+        buttonCheckout.visibility = View.GONE
+        buttonCarrito.visibility = View.VISIBLE
+        buttonProducts.visibility = View.GONE
+        if (isAdmin)
+            buttonAddProducts.visibility = View.VISIBLE
+        else
+            buttonAddProducts.visibility = View.GONE
+    }
+
+    private fun goToCart() {
+        buttonCarrito.visibility = View.GONE
+        buttonCheckout.visibility = View.VISIBLE
+        buttonAddProducts.visibility = View.GONE
+        recyclerView.visibility = View.GONE
+        recyclerViewCart.visibility = View.VISIBLE
+        priceTotalTextView.visibility = View.VISIBLE
+        buttonProducts.visibility = View.VISIBLE
+        loadCartItems()
+    }
+
+    private fun showCheckout() {
+        isCheckout = true
+
+        recyclerViewCheckout.visibility = View.VISIBLE
+        recyclerViewCart.visibility = View.GONE
+        recyclerView.visibility = View.GONE
+
+        buttonCheckout.visibility = View.GONE
+        buttonCarrito.visibility = View.GONE
+        buttonProducts.visibility = View.VISIBLE
+
+        buttonPayment.visibility = View.VISIBLE
+        loadCheckoutItems()
     }
 
     private fun goToMap() {
@@ -174,6 +247,7 @@ class MainActivity : ComponentActivity() {
             buttonCheckout.visibility = View.GONE
             buttonAddProducts.visibility = View.GONE
             buttonMaps.visibility = View.VISIBLE
+            buttonCarrito.visibility = View.GONE
             buttonMaps.text = "Products"
 
             recyclerView.visibility = View.GONE
@@ -188,10 +262,14 @@ class MainActivity : ComponentActivity() {
             recyclerViewCart.visibility = View.GONE
             recyclerViewCheckout.visibility = View.GONE
             viewMaps.visibility = View.GONE
+            buttonCarrito.visibility = View.VISIBLE
 
             buttonMaps.text = "Map"
             buttonCarrito.visibility = View.VISIBLE
-            buttonAddProducts.visibility = View.VISIBLE
+            if (isAdmin)
+                buttonAddProducts.visibility = View.VISIBLE
+            else
+                buttonAddProducts.visibility = View.GONE
             buttonCheckout.visibility = View.GONE
 
             priceTotalTextView.visibility = View.GONE
@@ -201,20 +279,23 @@ class MainActivity : ComponentActivity() {
 
     private fun fetchProducts() {
 
-        apiService.getAllProducts().enqueue(object : Callback<List<Product>> {
+        apiService.getAllProducts().enqueue(object : Callback<List<ProductModel>> {
             override fun onResponse(
-                call: Call<List<Product>>,
-                response: Response<List<Product>>
+                call: Call<List<ProductModel>>,
+                response: Response<List<ProductModel>>
             ) {
-                Log.e("DEPURACION", "llegó a onResponse")
+                Log.d("FETCH_PRODUCTS", "llegó a onResponse")
                 if (response.isSuccessful) {
                     val productList = response.body()
-                    Log.d("API_RESPONSE", "Productos: $productList")
+                    Log.d("FETCH_PRODUCTS", "Productos: $productList")
                     productList?.let {
                         // Initialize the adapter with the product list
-                        productAdapter = ProductAdapter(it) {
-                            productId -> addToCart(productId)
-                        }
+                        productAdapter = ProductAdapter(
+                            productModelList = it,
+                            onAddToCart = { productId -> addToCart(productId) },
+                            isAdmin = isAdmin,
+                            deleteProduct = { productId -> deleteProduct(productId) }
+                        )
                         recyclerView.adapter = productAdapter
                     }
                 } else {
@@ -222,7 +303,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<Product>>, t: Throwable) {
+            override fun onFailure(call: Call<List<ProductModel>>, t: Throwable) {
                 Log.e("FETCH_PRODUCTS", "llegó a onFailure")
                 Log.e("FETCH_PRODUCTS", "Failure: ${t.message}")
                 Log.e("FETCH_PRODUCTS", "Failure: ${t.message}")
@@ -235,32 +316,51 @@ class MainActivity : ComponentActivity() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     //Toast.makeText(this@MainActivity, "Producto añadido al carrito", Toast.LENGTH_SHORT).show()
-                    Log.d("API_RESPONSE", "Producto añadido al carrito: $productId")
+                    Log.d("ADD_TO_CART", "Producto añadido al carrito: $productId")
                 } else {
-                    Log.e("API_ERROR", "Error al añadir al carrito: ${response.code()}")
+                    Log.e("ADD_TO_CART", "Error al añadir al carrito: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.e("API_ERROR", "Error: ${t.message}")
+                Log.e("ADD_TO_CART", "Error: ${t.message}")
             }
         })
     }
 
-    private fun remove(product: Product) {
-        apiService.remove(product.id).enqueue(object : Callback<Void> {
+    private fun deleteProduct(productID: Long) {
+        apiService.deleteProduct(productID).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     loadCartItems()
                     //Toast.makeText(this@MainActivity, "Producto añadido al carrito", Toast.LENGTH_SHORT).show()
-                    Log.d("API_RESPONSE", "Producto eliminado al carrito")
+                    Log.d("DELETE_PRODUCT", "Producto eliminado al carrito")
+                    fetchProducts()
                 } else {
-                    Log.e("API_ERROR", "Error al eliminado al carrito: ${response.code()}")
+                    Log.e("DELETE_PRODUCT", "Error al eliminado al carrito: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.e("API_ERROR", "Error: ${t.message}")
+                Log.e("DELETE_PRODUCT", "Error: ${t.message}")
+            }
+        })
+    }
+
+    private fun remove(productModel: ProductModel) {
+        apiService.remove(productModel.id).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    loadCartItems()
+                    //Toast.makeText(this@MainActivity, "Producto añadido al carrito", Toast.LENGTH_SHORT).show()
+                    Log.d("REMOVE", "Producto eliminado al carrito")
+                } else {
+                    Log.e("REMOVE", "Error al eliminado al carrito: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("REMOVE", "Error: ${t.message}")
             }
         })
     }
@@ -268,8 +368,8 @@ class MainActivity : ComponentActivity() {
     private fun loadCartItems() {
         val apiService = ApiClient.retrofit.create(ApiService::class.java)
 
-        apiService.getFullCart().enqueue(object : Callback<List<Product>> {
-            override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
+        apiService.getFullCart().enqueue(object : Callback<List<ProductModel>> {
+            override fun onResponse(call: Call<List<ProductModel>>, response: Response<List<ProductModel>>) {
                 if (response.isSuccessful) {
                     val cartItems = response.body() ?: emptyList()
                     cartAdapter = CartAdapter(cartItems){
@@ -279,40 +379,29 @@ class MainActivity : ComponentActivity() {
                     recyclerViewCart.adapter = cartAdapter
                     updateTotalPrice(cartItems)
                 } else {
-                    Log.e("API_ERROR", "Error al cargar productos del carrito: ${response.code()}")
+                    Log.e("LOAD_CART_ITEMS", "Error al cargar productos del carrito: ${response.code()}")
                 }
             }
 
-            override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                Log.e("API_ERROR", "Error de red: ${t.message}")
+            override fun onFailure(call: Call<List<ProductModel>>, t: Throwable) {
+                Log.e("LOAD_CART_ITEMS", "Error de red: ${t.message}")
             }
         })
     }
 
-    private fun updateTotalPrice(cartItems: List<Product>) {
+    private fun updateTotalPrice(cartItems: List<ProductModel>) {
         val totalPrice = cartItems.sumOf { it.price }
-        priceTotalTextView.text = "Price: $%.2f".format(totalPrice)
-    }
-
-    private fun showCheckout() {
-        Log.e("CHECKOUT", "Failure: showCheckout")
-        isCheckout = true
-        recyclerViewCart.visibility = View.GONE
-        buttonCheckout.visibility = View.GONE
-        buttonCarrito.visibility = View.GONE
-        recyclerViewCheckout.visibility = View.VISIBLE
-        buttonPayment.visibility = View.VISIBLE
-        loadCheckoutItems()
+        priceTotalTextView.text = "Total: $%.2f".format(totalPrice)
     }
 
     private fun loadCheckoutItems() {
 
         var cartItems = CartManager.getCartItems()
-        Log.e("CHECKOUT", "Failure: $cartItems")
+
         //print(cartItems.toString())
         val apiService = ApiClient.retrofit.create(ApiService::class.java)
-        apiService.getFullCart().enqueue(object : Callback<List<Product>> {
-            override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
+        apiService.getFullCart().enqueue(object : Callback<List<ProductModel>> {
+            override fun onResponse(call: Call<List<ProductModel>>, response: Response<List<ProductModel>>) {
                 if (response.isSuccessful) {
                     cartItems = response.body() ?: emptyList()
                     /*cartAdapter = CartAdapter(cartItems) { product ->
@@ -322,13 +411,14 @@ class MainActivity : ComponentActivity() {
                     checkoutAdapter = CheckoutAdapter(cartItems)
                     recyclerViewCheckout.adapter = checkoutAdapter
                     updateTotalPrice(cartItems)
+                    Log.d("CHECKOUT", "EXITO: $cartItems")
                 } else {
-                    Log.e("API_ERROR", "Error al cargar productos del carrito: ${response.code()}")
+                    Log.e("CHECKOUT", "Error al cargar productos del carrito: ${response.code()}")
                 }
             }
 
-            override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                Log.e("API_ERROR", "Error de red: ${t.message}")
+            override fun onFailure(call: Call<List<ProductModel>>, t: Throwable) {
+                Log.e("CHECKOUT", "Error de red: ${t.message}")
             }
         })
     }
@@ -358,20 +448,6 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
-    private fun resetToProductsView() {
-        // Reiniciar los estados de las vistas
-        isViewingCart = false
-        isCheckout = false
-
-        recyclerView.visibility = View.VISIBLE
-        recyclerViewCart.visibility = View.GONE
-        recyclerViewCheckout.visibility = View.GONE
-        buttonPayment.visibility = View.GONE
-        buttonCheckout.visibility = View.GONE
-        buttonCarrito.visibility = View.VISIBLE
-        buttonCarrito.text = "cart"
-        buttonAddProducts.visibility = View.VISIBLE
-    }
 
     private fun showPaymentError() {
         Toast
@@ -393,5 +469,11 @@ class MainActivity : ComponentActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun addProductAdmin(){
+        val intent = Intent(this, AddProductActivity::class.java)
+        addProductLauncher.launch(intent)
+        Log.e("DEPURANDO","Por que no funsiona")
     }
 }

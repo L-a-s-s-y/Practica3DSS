@@ -1,13 +1,15 @@
-package com.example.practica3
+package com.example.practica3.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.practica3.models.ProductModel
+import com.example.practica3.R
 
 class CheckoutAdapter(
-    private val checkoutItems: List<Product>
+    private val checkoutItems: List<ProductModel>
 ) : RecyclerView.Adapter<CheckoutAdapter.CheckoutViewHolder>() {
 
     class CheckoutViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

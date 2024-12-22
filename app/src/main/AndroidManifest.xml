@@ -38,6 +38,10 @@
         <activity
             android:name=".LoginActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <!-- Declarar LoginActivity -->
+        <activity
+            android:name=".AddProductActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 

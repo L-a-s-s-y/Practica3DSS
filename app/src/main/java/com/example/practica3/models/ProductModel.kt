@@ -1,6 +1,6 @@
-package com.example.practica3
+package com.example.practica3.models
 
-data class Product (
+data class ProductModel (
     val id: Long,
     val name: String,
     val price: Double

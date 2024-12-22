@@ -17,16 +17,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
+        android:layout_marginStart="8dp"
         android:textColor="#808080"/>
 
     <Button
         android:id="@+id/buttonAddToCart"
         android:layout_width="48dp"
         android:layout_height="48dp"
-
         android:text="🛒"
         android:textSize="20sp"
         android:textColor="@color/white"
+        android:elevation="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+    <Button
+        android:id="@+id/buttonEliminarProducto"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:text="X"
+        android:textSize="20sp"
+        android:textColor="@color/red"
         android:elevation="4dp" />
 
 </LinearLayout>

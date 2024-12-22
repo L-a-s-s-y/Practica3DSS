@@ -10,7 +10,6 @@
         android:id="@+id/recyclerViewCheckout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/buttonCheckout"
         android:padding="8dp" />
 
     <TextView
@@ -21,18 +20,6 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_gravity="end"
-        android:layout_marginTop="16dp" />
-
-    <!-- Botón para proceder al pago -->
-    <Button
-        android:id="@+id/buttonCheckout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Checkout"
-        android:backgroundTint="@color/purple_200"
-        android:textColor="@color/purple_200"
-        android:elevation="40dp"
         android:layout_marginTop="16dp" />
 
 

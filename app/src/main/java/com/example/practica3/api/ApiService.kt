@@ -1,6 +1,8 @@
-package com.example.practica3
+package com.example.practica3.api
+import com.example.practica3.login.LoginRequest
+import com.example.practica3.login.LoginResponse
+import com.example.practica3.models.ProductModel
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -8,13 +10,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    // Get all products
-    //@GET("/api/products")
-    //fun getAllProducts(): Call<List<Product>>
 
     @GET("/api/products")
-    fun getAllProducts(): Call<List<Product>>
-
+    fun getAllProducts(): Call<List<ProductModel>>
 
     // Añadir un producto (POST request example)
     @POST("/products/add")
@@ -37,7 +35,7 @@ interface ApiService {
     fun processPayment(): Call<Void>
 
     @GET("/api/cart")
-    fun getFullCart(): Call<List<Product>>
+    fun getFullCart(): Call<List<ProductModel>>
 
     // Editar un product por su ID
     @POST("/products/edit/{id}")
@@ -48,9 +46,15 @@ interface ApiService {
     ): Call<Void>
 
     // Eliminar un producto por su ID
-    @POST("/products/delete/{id}")
+    @POST("/api/products/delete")
     fun deleteProduct(
-        @Path("id") id: Long
+        @Query("productId") productId: Long,
+    ): Call<Void>
+
+    @POST("/api/products/add")
+    fun addProductAdmin(
+        @Query("name") name: String,
+        @Query("price") price: Double
     ): Call<Void>
 
     @POST("/api/auth/login")

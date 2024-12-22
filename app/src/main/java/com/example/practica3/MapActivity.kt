@@ -1,18 +1,13 @@
 package com.example.practica3
 
-import android.Manifest
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import android.content.pm.PackageManager
 import org.osmdroid.config.Configuration
-import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import androidx.preference.PreferenceManager
+import org.osmdroid.views.overlay.Marker
 
 class MapActivity : AppCompatActivity() {
     private lateinit var mapView: MapView
@@ -34,49 +29,36 @@ class MapActivity : AppCompatActivity() {
 
         // Configura el MapView
         mapView = findViewById(R.id.map)
-        mapView.setTileSource(TileSourceFactory.MAPNIK) // Tiles de OpenStreetMap
         mapView.setMultiTouchControls(true)
+        mapView.setTileSource(TileSourceFactory.MAPNIK)
+        //initializeMap()
 
-        // Verifica permisos de ubicación
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-        } else {
-            initializeMap()
-        }
     }
 
     private fun initializeMap() {
-        // Añade los marcadores de almacenes
-        addStoreMarkers()
+        // Configura las propiedades básicas del mapa
 
-        // Ajusta el zoom y el área visible para incluir todos los almacenes
-        adjustZoomToStores()
+
+        // Configura el controlador del mapa con las coordenadas iniciales
+        //val startPoint = GeoPoint(37.19715325305848, -3.6244863308941815)
+        //val mapController = mapView.controller
+        //mapController.setZoom(1.0)
+        //mapController.setCenter(startPoint)
+
+        // Añade los marcadores de almacenes
+        //addStoreMarkers()
+
+        // Refresca el mapa
+        //mapView.invalidate()
     }
 
-    private fun addStoreMarkers() {
+    /*private fun addStoreMarkers() {
         almacenes.forEach { location ->
             val marker = Marker(mapView)
             marker.position = location
-            marker.icon = ContextCompat.getDrawable(this, R.drawable.ic_store)
             marker.title = "Almacén"
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             mapView.overlays.add(marker)
         }
-    }
-
-    private fun adjustZoomToStores() {
-        // Calcula un BoundingBox que incluya todos los almacenes
-        val boundingBox = BoundingBox.fromGeoPointsSafe(almacenes)
-
-        // Ajusta el mapa al BoundingBox
-        mapView.zoomToBoundingBox(boundingBox, false) // false: No animado
-        mapView.invalidate() // Refresca el mapa
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initializeMap()
-        }
-    }
+    }*/
 }

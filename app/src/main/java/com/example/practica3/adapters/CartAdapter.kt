@@ -1,4 +1,4 @@
-package com.example.practica3
+package com.example.practica3.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,10 +6,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.practica3.models.ProductModel
+import com.example.practica3.R
 
 class CartAdapter(
-    private val cartItems: List<Product>,
-    private val onRemove: (Product) -> Unit
+    private val cartItems: List<ProductModel>,
+    private val onRemove: (ProductModel) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
     class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

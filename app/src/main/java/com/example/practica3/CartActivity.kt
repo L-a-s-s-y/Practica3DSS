@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.Button
+import com.example.practica3.adapters.CartAdapter
+import com.example.practica3.managers.CartManager
 
 class CartActivity : AppCompatActivity() {
     private lateinit var recyclerViewCart: RecyclerView
